@@ -1,0 +1,58 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Silk Blouse",
+      "price": 59.99,
+      "image": "https://via.placeholder.com/150?text=Silk+Blouse",
+      "category": "Women",
+      "rating": 4,
+      "featured": true
+    },
+    {
+      "id": 2,
+      "name": "Tailored Coat",
+      "price": 99.99,
+      "image": "https://via.placeholder.com/150?text=Tailored+Coat",
+      "category": "Men",
+      "rating": 5,
+      "featured": true
+    },
+    {
+      "id": 3,
+      "name": "Leather Sneakers",
+      "price": 29.99,
+      "image": "https://via.placeholder.com/150?text=Leather+Sneakers",
+      "category": "Men",
+      "rating": 3,
+      "featured": false
+    },
+    {
+      "id": 4,
+      "name": "Cashmere Scarf",
+      "price": 39.99,
+      "image": "https://via.placeholder.com/150?text=Cashmere+Scarf",
+      "category": "Accessories",
+      "rating": 4,
+      "featured": false
+    },
+    {
+      "id": 5,
+      "name": "Linen Dress",
+      "price": 79.99,
+      "image": "https://via.placeholder.com/150?text=Linen+Dress",
+      "category": "Women",
+      "rating": 4,
+      "featured": true
+    },
+    {
+      "id": 6,
+      "name": "Wool Jacket",
+      "price": 89.99,
+      "image": "https://via.placeholder.com/150?text=Wool+Jacket",
+      "category": "Men",
+      "rating": 5,
+      "featured": false
+    }
+  ]
+}
