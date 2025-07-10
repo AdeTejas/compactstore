@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -82,6 +43,8 @@
     .product-card h3 { font-family: 'Lora', serif; margin: 0.5rem 0; font-size: 1.2rem; }
     .product-card p { color: #666; margin: 0.5rem 0; }
     body.dark .product-card p { color: #b0b0b0; }
+    .product-desc { font-size: 0.9rem; color: #666; }
+    body.dark .product-desc { color: #b0b0b0; }
     .product-card button, .wishlist-btn { background: #1a1a1a; color: #ffffff; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; transition: all 0.3s; margin: 0.2rem; }
     body.dark .product-card button, body.dark .wishlist-btn { background: #c0c0c0; color: #1a1a1a; }
     .product-card button:hover, .wishlist-btn:hover { background: #c0c0c0; color: #1a1a1a; transform: scale(1.05); }
@@ -195,6 +158,8 @@
       <h3 id="modal-name"></h3>
       <p id="modal-price"></p>
       <p id="modal-rating"></p>
+      <p>Size: <span id="modal-size">N/A</span></p>
+      <p>Color: <span id="modal-color">N/A</span></p>
       <button onclick="addToCartFromModal()" class="product-card button" role="button" aria-label="Add to cart">Add to Cart</button>
       <button onclick="closeModal()" class="close-modal" role="button" aria-label="Close quick view">Close</button>
     </div>
@@ -203,7 +168,9 @@
   <script>
     // Mock API fetch simulation
     async function fetchProducts() {
+      console.log("Fetching products...");
       const response = await fetch('products.json');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.json();
     }
 
@@ -216,10 +183,16 @@
     async function loadProducts() {
       const spinner = document.getElementById('spinner');
       spinner.style.display = 'block';
-      products = await fetchProducts();
-      spinner.style.display = 'none';
-      renderCarousel();
-      filterAndSortProducts();
+      try {
+        products = await fetchProducts();
+        spinner.style.display = 'none';
+        renderCarousel();
+        filterAndSortProducts();
+      } catch (error) {
+        console.error("Fetch failed:", error);
+        spinner.style.display = 'none';
+        document.getElementById('product-grid').innerHTML = '<p>Error loading products. Check console.</p>';
+      }
     }
 
     function renderCarousel() {
@@ -257,7 +230,7 @@
 
     function filterAndSortProducts() {
       const maxPrice = document.getElementById('price-filter').value;
-      const searchQuery = document.getElementById('search-input').value;
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
       const category = document.getElementById('category-filter').value;
       const sortOption = document.getElementById('sort-option').value;
       const spinner = document.getElementById('spinner');
@@ -266,7 +239,7 @@
       setTimeout(() => {
         let filteredProducts = products.filter(p => 
           p.price <= maxPrice && 
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          p.name.toLowerCase().includes(searchQuery) &&
           (category === 'all' || p.category === category)
         );
 
@@ -284,6 +257,7 @@
             <img src="${product.image}" alt="${product.name}" loading="lazy">
             <h3>${product.name}</h3>
             <p>$${product.price.toFixed(2)}</p>
+            <p class="product-desc">${product.description || 'No description'}</p>
             <p>${'★'.repeat(product.rating)}${'☆'.repeat(5 - product.rating)}</p>
             <button onclick="addToCart(${product.id})" aria-label="Add ${product.name} to cart">Add to Cart</button>
             <button onclick="openQuickView(${product.id})" aria-label="Quick view ${product.name}">Quick View</button>
@@ -400,6 +374,8 @@
       document.getElementById('modal-name').textContent = currentProduct.name;
       document.getElementById('modal-price').textContent = `$${currentProduct.price.toFixed(2)}`;
       document.getElementById('modal-rating').innerHTML = '★'.repeat(currentProduct.rating) + '☆'.repeat(5 - currentProduct.rating);
+      document.getElementById('modal-size').textContent = currentProduct.size ? currentProduct.size.join(', ') : 'N/A';
+      document.getElementById('modal-color').textContent = currentProduct.color ? currentProduct.color.join(', ') : 'N/A';
       document.getElementById('quick-view-modal').style.display = 'flex';
     }
 
