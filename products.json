@@ -1,76 +1,48 @@
-{
-  "products": [
-    {
-      "id": 1,
-      "name": "Silk Blouse",
-      "price": 59.99,
-      "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300",
-      "category": "Women",
-      "rating": 4,
-      "featured": true,
-      "description": "Elegant silk blouse with a soft flow, perfect for formal events.",
-      "size": ["S", "M", "L"],
-      "color": ["White", "Black"]
-    },
-    {
-      "id": 2,
-      "name": "Tailored Coat",
-      "price": 99.99,
-      "image": "https://images.unsplash.com/photo-1600585154526-990d71ebb8cd?auto=format&fit=crop&w=300",
-      "category": "Men",
-      "rating": 5,
-      "featured": true,
-      "description": "Classic wool coat with a sharp fit, ideal for winter.",
-      "size": ["M", "L", "XL"],
-      "color": ["Gray", "Navy"]
-    },
-    {
-      "id": 3,
-      "name": "Leather Sneakers",
-      "price": 29.99,
-      "image": "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=300",
-      "category": "Men",
-      "rating": 3,
-      "featured": false,
-      "description": "Stylish leather sneakers with durable soles.",
-      "size": ["7", "8", "9"],
-      "color": ["Black", "Brown"]
-    },
-    {
-      "id": 4,
-      "name": "Cashmere Scarf",
-      "price": 39.99,
-      "image": "https://images.unsplash.com/photo-1600585155928-2e5e0a54dc07?auto=format&fit=crop&w=300",
-      "category": "Accessories",
-      "rating": 4,
-      "featured": false,
-      "description": "Luxurious cashmere scarf for cold days.",
-      "size": ["One Size"],
-      "color": ["Beige", "Charcoal"]
-    },
-    {
-      "id": 5,
-      "name": "Linen Dress",
-      "price": 79.99,
-      "image": "https://images.unsplash.com/photo-1600585154262-6d8a1c55f571?auto=format&fit=crop&w=300",
-      "category": "Women",
-      "rating": 4,
-      "featured": true,
-      "description": "Lightweight linen dress for summer outings.",
-      "size": ["S", "M", "L"],
-      "color": ["Olive", "Cream"]
-    },
-    {
-      "id": 6,
-      "name": "Wool Jacket",
-      "price": 89.99,
-      "image": "https://images.unsplash.com/photo-1600585155483-26d7a4cc7519?auto=format&fit=crop&w=300",
-      "category": "Men",
-      "rating": 5,
-      "featured": false,
-      "description": "Warm wool jacket with a modern cut.",
-      "size": ["M", "L", "XL"],
-      "color": ["Black", "Olive"]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Compact Store</title>
+</head>
+<body>
+  <div id="carousel"></div>
+
+  <script>
+    async function loadProducts() {
+      try {
+        const response = await fetch('products.json');
+        const data = await response.json();
+
+        // 🔥 Make sure we’re accessing the array
+        const products = Array.isArray(data.products) ? data.products : [];
+
+        if (!products.length) {
+          console.warn("No products found.");
+          return;
+        }
+
+        renderCarousel(products);
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      }
     }
-  ]
-}
+
+    function renderCarousel(products) {
+      // 💡 Example: filter featured products only
+      const featured = products.filter(product => product.featured);
+
+      const carousel = document.getElementById("carousel");
+      carousel.innerHTML = featured.map(product => `
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 10px;">
+          <img src="${product.image}" alt="${product.name}" width="100" />
+          <h3>${product.name}</h3>
+          <p>${product.description}</p>
+          <strong>$${product.price}</strong>
+        </div>
+      `).join('');
+    }
+
+    loadProducts(); // ⚡ Trigger loading
+  </script>
+</body>
+</html>
